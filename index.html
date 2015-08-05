@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="js/libs/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.6/d3.min.js" charset="utf-8"></script>
+</head>
+<body>
+    <section id="info">
+    <h1>Solving the <a href="http://en.wikipedia.org/wiki/Travelling_salesman_problem">Traveling Salesman Problem</a></h1>
+    <p>This is a TSP solver in javascript that uses <a href="http://d3js.org">d3.js</a> for visualization. Click a bunch of spots on the map to make "cities", then click "Run" to run the TSP solver. It will display its first guess, then its final guess. See if it does well. (Note, it minimizes flat x/y Euclidean distances, America is there for effect.) <a href="http://github.com/yanatan16/d3-tps-demo">Github Repo</a></p>
+  </section>
+
+  <section id="tsp">
+  </section>
+
+  <button id="run">Run</button>
+  <button id="reset">Reset</button>
+  <script src="js/nodeDraw.js"></script>
+</body>
+</html>
