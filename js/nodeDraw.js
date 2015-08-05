@@ -53,6 +53,8 @@
 //   restart();
 // }
 
+// need to look at https://github.com/yanatan16/d3-tsp-demo and remove states.json
+
 (function (d3, _) {
   'use strict';
   console.log('Started!');
@@ -90,14 +92,6 @@
 
   var g = svg.append("g")
       .attr("id", "states");
-
-  d3.json("states.json", function(json) {
-    g.selectAll("path")
-        .data(json.features)
-      .enter().append("path")
-        .attr("d", path)
-        .on('click', clickMap);
-  });
 
   function clickMap () {
     cities.push(d3.mouse(this));
@@ -281,29 +275,3 @@
 
   console.log('Loaded!');
 })(d3, _);
-
-function tick() {
-  link.attr("x1", function(d) { return d.source.x; })
-      .attr("y1", function(d) { return d.source.y; })
-      .attr("x2", function(d) { return d.target.x; })
-      .attr("y2", function(d) { return d.target.y; });
-
-  node.attr("cx", function(d) { return d.x; })
-      .attr("cy", function(d) { return d.y; });
-}
-
-function restart() {
-  link = link.data(links);
-
-  link.enter().insert("line", ".node")
-      .attr("class", "link");
-
-  node = node.data(nodes);
-
-  node.enter().insert("circle", ".cursor")
-      .attr("class", "node")
-      .attr("r", 5)
-      .call(force.drag);
-
-  force.start();
-}
