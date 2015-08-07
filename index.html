@@ -4,6 +4,7 @@
     <link rel="stylesheet" href="css/style.css">
     <script src="js/libs/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.6/d3.min.js" charset="utf-8"></script>
+    <script src="lib/underscore.min.js"></script>
 </head>
 <body>
     <section id="info">
@@ -11,7 +12,7 @@
     <p>This is a TSP solver in javascript that uses <a href="http://d3js.org">d3.js</a> for visualization. Click a bunch of spots on the map to make "cities", then click "Run" to run the TSP solver. It will display its first guess, then its final guess. See if it does well. (Note, it minimizes flat x/y Euclidean distances, America is there for effect.) <a href="http://github.com/yanatan16/d3-tps-demo">Github Repo</a></p>
   </section>
 
-  <section id="tsp">
+  <section id="RouteGraph">
   </section>
 
   <button id="run">Run</button>

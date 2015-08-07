@@ -1,63 +1,126 @@
-// var width = 960,
-//     height = 500;
-
-// var fill = d3.scale.category20();
-
-// var force = d3.layout.force()
-//     .size([width, height])
-//     .nodes([{}]) // initialize with a single node
-//     .linkDistance(30)
-//     .charge(-60)
-//     .on("tick", tick);
-
-// var svg = d3.select("body").append("svg")
-//     .attr("width", width)
-//     .attr("height", height)
-//     .on("mousemove", mousemove)
-//     .on("mousedown", mousedown);
-
-// svg.append("rect")
-//     .attr("width", width)
-//     .attr("height", height);
-
-// var nodes = force.nodes(),
-//     links = force.links(),
-//     node = svg.selectAll(".node"),
-//     link = svg.selectAll(".link");
-
-// var cursor = svg.append("circle")
-//     .attr("r", 30)
-//     .attr("transform", "translate(-100,-100)")
-//     .attr("class", "cursor");
-
-// restart();
-
-// function mousemove() {
-//   cursor.attr("transform", "translate(" + d3.mouse(this) + ")");
-// }
-
-// function mousedown() {
-//   var point = d3.mouse(this),
-//       node = {x: point[0], y: point[1]},
-//       n = nodes.push(node);
-
-//   // add links to any nearby nodes
-//   nodes.forEach(function(target) {
-//     var x = target.x - node.x,
-//         y = target.y - node.y;
-//     if (Math.sqrt(x * x + y * y) < 30) {
-//       links.push({source: node, target: target});
-//     }
-//   });
-
-//   restart();
-// }
-
 // need to look at https://github.com/yanatan16/d3-tsp-demo and remove states.json
+
+
+// var allRoutes = ['Frolia,Hailea,9
+// Hailea,Hanalei,5
+// Hanalei,Maeulia,6
+// Hauauai,Lainea,8
+// Kaleola,Maeulia,7
+// Lainea,Hailea,5
+// Lakua,Hauauai,3
+// Maeulia,Hailea,12
+// Paukaa,Hauauai,6
+// Poipu,Paukaa,9
+// Hailea,Waimea,4
+// Waimea,Lakua,9
+// Lakua,Poipu,7
+// Waimea,Kaleola,4
+// Maeulia,Paukaa,14
+// Hailea,Lainea,8'];
+
 
 (function (d3, _) {
   'use strict';
   console.log('Started!');
+
+  var nodes = []
+
+  $(document).ready(function() {
+    $.ajax({
+        type: "GET",
+        url: "Routes.csv",
+        dataType: "text",
+        success: function(data) {processData(data);}
+     });
+  });
+
+  var routesArray = [];
+  function processData(allText){ 
+    var textComingIn = "";
+    if(allText != undefined)
+      textComingIn = allText;
+    var allTextLines = textComingIn.split(/\r\n|\n/);
+    var headers = allTextLines[0].split(',');
+
+    for (var i=1; i<allTextLines.length; i++) {
+        var data = allTextLines[i].split(',');
+        if (data.length == headers.length) {
+
+            var tarr = [];
+            for (var j=0; j<headers.length; j++) {
+                tarr.push(data[j]);
+            }
+            var route = { 
+              src: tarr[0],
+              dest: tarr[1], 
+              distance: tarr[2]
+            };
+            routesArray.push(route);
+        }
+    }
+    CreateNodes();
+  }
+
+  function CreateNodes() {
+    var latestNodeIndex = 0;
+    for(var i =0; i< routesArray.length; i++){
+      var source = routesArray[i].src;
+      var dest = routesArray[i].dest;
+      var index = _.find(nodes, function(existingNode){
+        return source == existingNode.name;
+      });
+      if(index == undefined){
+        var node = {
+          name: source,
+          index: latestNodeIndex};
+        nodes.push(node);
+        index = latestNodeIndex;
+        latestNodeIndex++;
+      }
+      else
+        index=index.index;
+      //Set the route's source to the index of the node now that it is known
+      routesArray[i].source = index;
+
+      index = _.find(nodes, function(existingNode){
+        return dest == existingNode.name;
+      })
+      if(index == undefined){
+        var node = {
+          name: dest,
+          index: latestNodeIndex};
+        nodes.push(node);
+        index = latestNodeIndex;
+        latestNodeIndex++;
+      }
+      else
+        index = index.index;
+      // set the route's target index now that we know it.
+      routesArray[i].target = index;
+    }
+    console.log(nodes);
+    console.log(routesArray);
+    CreateForces();
+    DrawGraph();
+  }
+
+  var force;
+
+  function CreateForces() {
+    force = d3.layout.force()
+    .nodes(nodes)
+    .links(routesArray)
+    .linkStrength(0.1)
+    .friction(0.9)
+    .linkDistance(function(link){
+      return link.distance * 10;
+    })
+    .charge(-30)
+    .gravity(0.1)
+    .theta(0.8)
+    .alpha(0.1)
+    .start();
+  }
 
   var width = 960,
       height = 500,
@@ -67,7 +130,7 @@
 
   var path = d3.geo.path();
 
-  var svg = d3.select("#tsp").append("svg")
+  var svg = d3.select("#RouteGraph").append("svg")
       .attr("width", width)
       .attr("height", height);
 
@@ -90,8 +153,21 @@
       .attr("height", height)
       .on('click', clickMap);
 
-  var g = svg.append("g")
-      .attr("id", "states");
+  function DrawGraph(){
+    console.log("amazeballs");
+    var link = svg.selectAll(".link")
+        .data(routesArray)
+      .enter().append("line")
+        .attr("class", "link");
+
+    var node = svg.selectAll(".node")
+        .data(nodes)
+      .enter().append("g")
+        .attr("class", "node")
+        .call(force.drag);
+
+    drawCities();
+  }
 
   function clickMap () {
     cities.push(d3.mouse(this));
@@ -105,6 +181,7 @@
   }
 
   function drawCities() {
+    console.log(svg);
     svg.selectAll('circle').data(cities).enter()
       .append('circle')
         .attr('cx', function (d) { return d[0]; })
