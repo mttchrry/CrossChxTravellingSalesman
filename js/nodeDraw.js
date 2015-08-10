@@ -155,18 +155,26 @@
 
   function DrawGraph(){
     console.log("amazeballs");
-    var link = svg.selectAll(".link")
-        .data(routesArray)
-      .enter().append("line")
-        .attr("class", "link");
-
-    var node = svg.selectAll(".node")
-        .data(nodes)
-      .enter().append("g")
-        .attr("class", "node")
+    var link = svg.selectAll("path.connection").data(routesArray)
+      .enter().append("path")
+        .attr('class', 'connection')
+        .attr("marker-end", "url(#directed-line)")
         .call(force.drag);
 
-    drawCities();
+    var node = svg.selectAll("circle").data(nodes)
+      .enter().append("circle")
+      .attr("class", "city")
+      .call(force.drag);
+
+    node.append("text")
+      .attr("dx", 12)
+      .attr("dy", ".35em")
+      .text(function(d) {return d.name});
+
+    console.log(routesArray);
+    console.log(nodes);
+    console.log(svg);
+    console.log(force);
   }
 
   function clickMap () {
