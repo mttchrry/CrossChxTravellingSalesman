@@ -13,7 +13,8 @@ d3.csv("Routes.csv", function(error, links) {
   });
 
   console.log(links);
-
+  var selectedNodes = [-1, -1];
+  console.log(selectedNodes);
   var width = 960,
       height = 500;
 
@@ -22,11 +23,10 @@ d3.csv("Routes.csv", function(error, links) {
       .links(links)
       .size([width, height])
       .linkDistance(function(link){
-        var dist = link.value*10;
-        console.log(dist);
+        var dist = link.value*20;
         return dist;
       })
-      .charge(-300)
+      .charge(-600)
       .on("tick", tick)
       .start();
 
@@ -64,12 +64,15 @@ d3.csv("Routes.csv", function(error, links) {
 
   // add the nodes
   node.append("circle")
-      .attr("r", 5);
+      .attr("r", 5)
+      .style("fill", color)
+      .on("click", selectNode);
 
   // add the text 
   node.append("text")
+      .attr("class", "nodeText")
       .attr("x", 12)
-      .attr("dy", ".35em")
+      .attr("dy", ".0em")
       .text(function(d) { return d.name; });
 
   // add the curvy lines
@@ -90,6 +93,44 @@ d3.csv("Routes.csv", function(error, links) {
           .attr("transform", function(d) { 
               return "translate(" + d.x + "," + d.y + ")"; });
   }
+
+  function color(node){
+    console.log(node);
+    var i = selectedNodes.indexOf(node.index);
+  
+    var color = "#0F0";
+    if(i == 0)
+      color = "#08D";
+    else if(i == 1)
+      color = "#F00";
+    if(i >= 0 ){
+      console.log(i);
+      console.log(color);
+    }
+    return color;
+
+  }
+
+  function selectNode(selectedNode){
+    console.log(selectedNode.name);
+    // if the selected node isn't the destination, it becomes it. 
+    if (selectedNodes.indexOf(selectedNode.index) < 1){
+      // move the current destination to the source, and add this as destination;
+      selectedNodes[0] = selectedNodes[1];
+      selectedNodes[1] = selectedNode.index;
+       // Update the nodes…
+      svg.selectAll("circle").style("fill", color);
+      if(selectedNodes[0] >= 0){
+        calulatePath();
+      }
+    }
+  };
+  var currentLine = [];
+  var minWeight = 10000000;
+  var currentEdge = -1;
+  function calulatePath(){
+
+  };
 
 });
 
