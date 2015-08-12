@@ -101,7 +101,7 @@ d3.csv("Routes.csv", function(error, links) {
   function color(node){
     var i = selectedNodes.indexOf(node);
     console.log(node);
-    var color = "#0F0";
+    var color = "#000";
     if(i == 0)
       color = "#08D";
     else if(i == 1)
@@ -110,29 +110,28 @@ d3.csv("Routes.csv", function(error, links) {
 
   }
 
+  // if we are on the path, color it green, otherwise black
   function colorLines(pathIn){
-    console.log(pathIn);
-    console.log(lastAddedNode);
-    if(lastAddedNode != undefined &&
-      lastAddedNode.minPath.indexOf(pathIn) >= 0) {
-      return "#EE0"
+    if(lastAddedNode != undefined && pathIn.source != undefined){      
+      var result = $.grep(lastAddedNode.minPath, function(e){ 
+        return (e.source.name == pathIn.source.name && e.target.name == pathIn.target.name);
+      });
+      if(result.length > 0){
+        return "#0F0"
+      }
     }
-    // else if(lastAddedNode != undefined && pathIn.source.index == 0){
-    //   var i = lastAddedNode.minPath.indexOf(pathIn);
-    //   console.log(i);
-    //   console.log(lastAddedNode.minPath[0]);
-    //   console.log(pathIn);
-    //   return "#000";
-    // }
+    return "#000";
   }
 
+  // Response to node selection for drawing shortest paths.
   function selectNode(selectedNode){
     // if the selected node isn't the destination, it becomes it. 
     if (selectedNodes.indexOf(selectedNode) < 1){
       // move the current destination to the source, and add this as destination;
       selectedNodes[0] = selectedNodes[1];
       selectedNodes[1] = selectedNode;
-       // Update the nodes…
+
+       // Highlight source node blue, destination red.
       svg.selectAll("circle").style("fill", color);
       if(selectedNodes[0] != undefined){
         calulatePath();
@@ -143,8 +142,9 @@ d3.csv("Routes.csv", function(error, links) {
 
   var lastAddedNode;
 
+  // implementation of Djikstra's algorithm to get shortest path between the two selected nodes
   function calulatePath(){
-    //set up the nodes appropriately.
+    // get a copy of the nodes and apply initial minPath and min Distance to them. 
     unsettledNodes = JSON.parse(JSON.stringify(nodes));
     settledNodes = [];
 
