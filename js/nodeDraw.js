@@ -144,19 +144,19 @@ d3.csv("Routes.csv", function(error, links) {
 
   // implementation of Djikstra's algorithm to get shortest path between the two selected nodes
   function calulatePath(){
-    // get a copy of the nodes and apply initial minPath and min Distance to them. 
-    unsettledNodes = JSON.parse(JSON.stringify(nodes));
-    settledNodes = [];
-
-    for (var ind in unsettledNodes) {
-      if (unsettledNodes.hasOwnProperty(ind)) {
-        var curNode = unsettledNodes[ind];
-        curNode.minPath = [];
-        curNode.minDistance = maxMinWeight;
-      }
-    };
-
+    // we need two selected nodes to have a chance at a path, make sure the tuple is full. 
     if(selectedNodes.indexOf(undefined) < 0){
+      // get a copy of the nodes and apply initial minPath and min Distance to them. 
+      unsettledNodes = JSON.parse(JSON.stringify(nodes));
+      settledNodes = [];
+
+      for (var ind in unsettledNodes) {
+        if (unsettledNodes.hasOwnProperty(ind)) {
+          var curNode = unsettledNodes[ind];
+          curNode.minPath = [];
+          curNode.minDistance = maxMinWeight;
+        }
+      };
       // we have a path potentially!
       var firstNode = unsettledNodes[selectedNodes[0].name];
       firstNode.minDistance = 0;
